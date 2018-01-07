@@ -8,15 +8,22 @@
 <script src='./extlib/jquery-3.1.1.js'></script>
 <script src='./extlib/fastdom.js'></script>
 <script src='./extlib/scrubber.js'></script>
+<script src='./core/misc.js'></script>
+<script src='./core/logr.js'></script>
 <script src='sample.js'></script>
 </head>
 <body>
- <div id="main"></div>
+ <div id="main">
+  <div id="uploadr">
+   <label for="file" id="uploadr-btn" class="clickr">Choose a file</label><span id="uploadr-dnd" class="clickr"> or drag it here.</span>
+   <input type="file" name="file" id="file" class="inputfile" style="display: none;" />
+  </div>
+ </div>
  <div id="panel">
   <button id="playback"  class='button'></button>
   <div    id="pclock" class=""></div>
  </div>
- <div class="noise"></div>
+ <div class="background"></div>
 </body>
 <script>
 // options
@@ -28,12 +35,6 @@ var_interval     = 4     // ms
 var_playbackloop = null  // !important
 var_playing      = false
 
-// helper functions
-log    = console.log
-clean  = function(n) { var x = Number(n.replace(/[^-\d\.]/g, '')); return x }
-rpad   = function(s,l,c) { if (typeof s =='number') { s = s.toString() }; if (c == null) { c = ' ' }; return s + c.repeat(Math.max((l - s.length),0)); }
-lpad   = function(s,l,c) { if (typeof s =='number') { s = s.toString() }; if (c == null) { c = ' ' }; return c.repeat(Math.max(0,(l - s.length))) + s; }
-uuid   = function() { s4 = function() { return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1); }; return s4() + s4() + '-' + s4() + '-' + s4() + '-' +s4() + '-' + s4() + s4() + s4(); }
 
 hash = [] // array[index] so we know sequence
 fheight = 0
@@ -49,6 +50,7 @@ dir = null  // duration
 ppt = 0     // hash pointer
 run = 0
 tmr = null  // timer
+dur = 0
 
 interval = 29
 factor = 12
@@ -129,10 +131,12 @@ dummies = function() {
  $('#main').append(s)
 }
 
-dummies()
-preload()
+ $('#uploadr').remove()
+ dummies()
+ preload()
 
 $(window).on('load', function() {
+ init()
  hashing()
 
  scrubber = new ScrubberView()
@@ -141,7 +145,6 @@ $(window).on('load', function() {
      $('.scrubber').attr('id','scrubber')
  updateScrubber = function(n) { scrubber.value(n) }
  
-
  // looping timer
  play = function() {
   if (ply) {
@@ -150,7 +153,7 @@ $(window).on('load', function() {
   }
  }
  
- recalc = function() {
+ recalc = function(manual) {
   run += interval
   var z  = run * factor
   var rp = timing(z)
@@ -166,7 +169,13 @@ $(window).on('load', function() {
       dp = lpad(dp.mins,2,'0') + ':' + lpad(dp.secs,2,'0')
       }
   clock.text( rp + '/' + dp )
-  updateScrubber( run / dur * factor )
+  if (!manual) { updateScrubber( run / dur * factor ) }
+  /*
+  if (!manual) {
+   if ((run * factor) >= dur) { ply = false }
+  } else {
+  
+  } */
   if ((run * factor) >= dur) { ply = false }
   var p = hash[ppt] || {}
   var hashtime = p.ptime
@@ -188,6 +197,7 @@ $(window).on('load', function() {
   var v = i - clean(main.css('height')) + 8
   main.scrollTop(v)
  }
+
  log(hash)
  log(dur)
  ply = true  // playing true/false
@@ -196,6 +206,7 @@ $(window).on('load', function() {
  
  $('#main').scroll( function() {
  })
+ // behaviours
  $(window).bind('mousewheel DOMMouseScroll', function(event) {
    suspended = true
    log(event.originalEvent)
@@ -204,7 +215,20 @@ $(window).on('load', function() {
      log(event)
    }, interval)
  })
- 
+ scrubber.onScrubStart = function(value) {
+   suspended = true 
+ }
+ scrubber.onValueChanged = function(value) {
+   if (!suspended) { return }
+   run = Math.floor(value * dur) / factor
+   log(run + '    ' + dur)
+   recalc(true)
+   // recalc()
+ }
+ scrubber.onScrubEnd = function(value) {
+   suspended = false
+ }
+
 
  // STYLE THINGS
  // style scrubber
@@ -245,6 +269,14 @@ $(window).on('load', function() {
    .css('transform','translate(0%,-50%)')
 })
 
+// https://github.com/desmosinc/scrubber
+// https://codepen.io/zerostyle/pen/a88012ed280b71dd28a2a5683ec5d97f
+// https://css-tricks.com/making-pure-css-playpause-button/
+// <div>Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+// https://tympanus.net/codrops/2015/09/15/styling-customizing-file-inputs-smart-way/
+// https://css-tricks.com/drag-and-drop-file-uploading/
+
+
 /*
 basic = function() {
  $('#main').empty()
@@ -268,11 +300,33 @@ basic = function() {
    }
  }
 }
-*/
 
-//https://github.com/desmosinc/scrubber
-//https://codepen.io/zerostyle/pen/a88012ed280b71dd28a2a5683ec5d97f
-//https://css-tricks.com/making-pure-css-playpause-button/
-// <div>Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+
+function handleFileSelect(evt) {
+    var files = evt.target.files; // FileList object
+    // files is a FileList of File objects. List some properties.
+    var output = [];
+    for (var i = 0, f; f = files[i]; i++) {
+      output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
+                  f.size, ' bytes, last modified: ',
+                  f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
+                  '</li>');
+      var reader = new FileReader()
+      reader.onload = (function(mapfile) {
+        return function(e) {
+          var u = e.target.result
+          // parse xml
+          jprint('(map): Starting map loading...<br>')
+          mapdb.parse(u)
+        }
+      })(f)
+      reader.readAsText(f)
+    }
+    document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
+}
+
+document.getElementById('files').addEventListener('change', handleFileSelect, false);
+
+*/
 </script>
 </html>

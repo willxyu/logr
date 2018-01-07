@@ -64,7 +64,7 @@ p {
 #main-clone {
   position: absolute;
   top: 6px;
-  height: 95%;
+  height: 94%;
   width: 59%;
   transform: translate( -50%, 0% );
   background: rgba(14,14,14,0.77);
@@ -143,10 +143,10 @@ p {
 html, body {
   background-color:#444;
 }
-.noise {
+.background {
     z-index: -15;
 }
-.noise:after {
+.background:after {
     content: "";
     position: absolute;
     z-index: -1;
@@ -183,4 +183,29 @@ html, body {
 }
 .button:hover {
   border-color: transparent transparent transparent hsl(178, 100%, 14%);
+}
+
+#uploadr {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate( -52%, -50% );
+  display: inline-block;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.clickr {
+  display: inline-block;
+  font-family: 'Raleway';
+  font-size: 13pt;
+  color: rgba( 144, 144, 144, 0.5 );
+}
+
+#uploadr-btn:hover {
+  cursor: pointer;
+  color: rgba( 144, 144, 144, 0.85 );
 }
