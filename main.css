@@ -1,0 +1,186 @@
+
+ a:link    {color:inherit; background-color:transparent; text-decoration:none}
+ a:visited {color:inherit; background-color:transparent; text-decoration:none}
+ a:hover   {color:inherit; background-color:transparent; text-decoration:none} 
+ a:active  {color:inherit; background-color:transparent; text-decoration:none}
+ @font-face {
+  font-family: Lekton;
+  src: url('./assets/Lekton-Regular.ttf'); }
+ @font-face {
+  font-family: Overpass;
+  src: url('./assets/overpass-mono-light.otf'); }
+ @font-face {
+  font-family: Raleway;
+  src: url('./assets/Raleway-Light.ttf'); }
+ body {   
+  min-height: 100%;
+  background-color: hsl(2, 57%, 40%);
+  background-color: hsl(178, 100%, 17%);
+  background-image: repeating-linear-gradient(transparent, transparent 50px, rgba(0,0,0,.4) 50px, rgba(0,0,0,.4) 53px, transparent 53px, transparent 63px, rgba(0,0,0,.4) 63px, rgba(0,0,0,.4) 66px, transparent 66px, transparent 116px, rgba(0,0,0,.5) 116px, rgba(0,0,0,.5) 166px, rgba(255,255,255,.2) 166px, rgba(255,255,255,.2) 169px, rgba(0,0,0,.5) 169px, rgba(0,0,0,.5) 179px, rgba(255,255,255,.2) 179px, rgba(255,255,255,.2) 182px, rgba(0,0,0,.5) 182px, rgba(0,0,0,.5) 232px, transparent 232px),
+repeating-linear-gradient(270deg, transparent, transparent 50px, rgba(0,0,0,.4) 50px, rgba(0,0,0,.4) 53px, transparent 53px, transparent 63px, rgba(0,0,0,.4) 63px, rgba(0,0,0,.4) 66px, transparent 66px, transparent 116px, rgba(0,0,0,.5) 116px, rgba(0,0,0,.5) 166px, rgba(255,255,255,.2) 166px, rgba(255,255,255,.2) 169px, rgba(0,0,0,.5) 169px, rgba(0,0,0,.5) 179px, rgba(255,255,255,.2) 179px, rgba(255,255,255,.2) 182px, rgba(0,0,0,.5) 182px, rgba(0,0,0,.5) 232px, transparent 232px),
+repeating-linear-gradient(125deg, transparent, transparent 2px, rgba(0,0,0,.2) 2px, rgba(0,0,0,.2) 3px, transparent 3px, transparent 5px, rgba(0,0,0,.2) 5px);
+  overflow: hidden; }
+ 
+p {
+ font-family: 'Overpass';
+ font-size: 9pt;
+ line-height: 10pt;
+ margin: 0px;
+}
+
+ #div-1 {
+  position: absolute;
+  top: 1%;
+  left: 0.5%;
+  height: 98%;
+  width: 19.5%;
+  background: rgba(14,14,14,0.77);
+  border-radius: 8px;
+  border: none;
+ }
+
+#main {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  height: 92%;
+  width: 59%;
+  transform: translate( -50%, 0% );
+  background: rgba(14,14,14,0.77);
+  border-top-right-radius: 8px;
+  border-top-left-radius: 8px;
+  border: none;
+  overflow-y: scroll;
+  font-family: 'Overpass';
+  font-size: 9pt;
+  line-height: 10pt;
+  white-space: pre-wrap;
+  padding: 4px;
+ }
+#main::-webkit-scrollbar { 
+    display: none; 
+}
+
+#main-clone {
+  position: absolute;
+  top: 6px;
+  height: 95%;
+  width: 59%;
+  transform: translate( -50%, 0% );
+  background: rgba(14,14,14,0.77);
+  border-top-right-radius: 8px;
+  border-top-left-radius: 8px;
+  border: none;
+  overflow-y: scroll;
+  font-family: 'Overpass';
+  font-size: 9pt;
+  line-height: 10pt;
+  white-space: pre-wrap;
+  padding: 4px;
+ }
+#main-clone::-webkit-scrollbar { 
+    display: none; 
+}
+
+ #div-2 {
+  position: absolute;
+  top: 1%;
+  right: 0.5%;
+  height: 98%;
+  width: 19.5%;
+  background: rgba(14,14,14,0.77);
+  border-radius: 8px;
+  border: none;
+ }
+
+ #panel {
+  cursor: pointer;
+  position: absolute;
+  bottom: 0%;
+  left: 0%;
+  width: 100%;
+  height: 48px;
+  background: hsl(178, 100%, 8%);
+  border-top: 1px solid hsl(178, 100%, 12%);
+  border-left: 1px solid hsl(178, 100%, 14%);
+  transition: all 130ms;
+ }
+#panel:hover {
+ background: hsl(178, 100%, 8.3%); }
+
+ .panel-click {
+  position: absolute;
+  line-height: 18px;
+  white-space: pre-wrap;
+  font-family: 'Raleway';
+  font-size: 13pt;
+  color: hsl(178, 100%, 4%);
+  transition: all 130ms;
+ }
+
+ .panel-click:hover {
+  color: hsl(178, 100%, 14%);
+ }
+
+.timeline {
+ position: absolute;
+ left: 14%;
+ top: 50%;
+ width: 72%;
+ height: 2px;
+ transform: translate(0%,0%);
+ background: rgba(63,63,63,1);
+ border-bottom: 1px solid rgba( 14, 14, 14, 1);
+}
+
+#pclock {
+ font-family: 'Lekton';
+ font-size: 13pt;
+ color: rgba( 75, 75, 75, 1);
+  color: hsl(178, 100%, 2%);
+}
+
+html, body {
+  background-color:#444;
+}
+.noise {
+    z-index: -15;
+}
+.noise:after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top:0;
+    bottom:0;
+    left:0;
+    right:0;
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAABIFJREFUeNrEWk1rGzEQXWuX0prQECcQYjAUFvbqs3NMfnz+QyDXQiBpaA+hPRhXMpIrT97MPKXQGhRJu/pYab7ezCR0XTfFMu52u67Uso2eyffyXS7zUpy1Fi37yu9NdYh/tqk1m83GUst26aP3pY4LPtTjUj/Xr6nIder58f232F7I57Itf2WP0ums27AooFBBXUPeYtVe5DIiqmscc7QGsQk8gEdu60OsD9P6HqsNFukACzxIFkLklqxRsdmDfK6tZY0F8/qOEeh86ncpBUtANXZkuaD+tllulN9LOnA+9YsmbPJ20Lj6eRmPFAKaV1MRUVb292uIU5/l9hkrtJ5MaVRA81hKozlB3MaLvBlNBSP50W5ZzOkR5czbBnIi5WWQgxHroPdoPCnMW+WA1iVM8d09EvoyZtD42vpAjRKIly3+1+aAfbcOlf/Ykc1ms8x8t9JkwtIyjC1h+b5x3aRNp4OM3N3dfapPe3t7e2ppLUQVC+oUG6TxvaatCHu13Rfl5CtPk7BwhrEpFvRpmMcZtKp9zn50CxtphxDrn5UC5vE3lNvn5UCsTHgHYICrZ+c6dtP4+5zrj7Gc5vbSA4kWSs7lKj+/sgQbUOboICHpaM0wKbr+Zyzfc/sro16lahXteV5/7sGd5+fnkN8tkCmgoHuhSqFMTRHvFhlgKN5N3lpyz8GD4B5I1CwtMnCmQTMQBeIUqfIHyxojy2v5Ih4CljbFWLeGMX0NTxT27wNaqPU25AfWxk+TO+25IqOTBuVLO8gbQrcshUpujCy2FzBg9spj95a7nodYubNwFfLEEiZjBbcea6lgw8eZNNUux82KeWc8MVYONLnQ5mqs7cjRkQgEJn6E5ODm5uY1CZkXB5P2RMqPxqZWfAvKLAshvBAQG/ph3NtGZHAc1/JCoP8RKI7MmJDJNrf8AOm/a2TXQqKIHbwoDFLp6dn19fVS04QjCjJ70T4POnhxMgcKja1RSai1LPCoxagYO+FpJU97WXZpYDZiLHyttTQoAVhvqrMB1fheBhyYgB9kh6enpwC1A6kEPEPGuMG1QfTYc5YbEN16lPHCqchHsVC0pyjMb9mfxrCYbDxX28zSVkZ0XVr9y9h/THXsniAEERi44IHKFtVqwXkUuMv9x7rWZG782+wU4m3P8jNF7HlpqfmAgtUSMkuojqC7YIt7Vp03tE+kRnwTMm1JtVlazDNujS7D2OIyBAbtahESLdvLQBwme5vCuEg20b4H9fuv/AZrfS0LYM19k0Ns/WcBFp6zGeDGtPgkFUpgsrmpXq/XvzS1ivIbKPiA1KyFnFFkv4qybOu1BtZlVUlahW8AS6zys1XsfrCsuZX08VLXB1dXE1SN56ubvc+qtrdQQXSLf2hC68mBlsc0XV0mD86ESKdpWuX+qhTWO2RVOtjf99M9J6fV1fWUxXuSSoFJcWkyY+EsLTuLWNBLuKJnUs6CyBteXVxcfDHy2n0JASH5QTZF8PwWpRs8h83735RDEFsTbMZAeinp6gK6ojKJ8Z2kuob5yrzfAgwASaYfY2UgQSYAAAAASUVORK5CYII=);
+
+    -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=60)";
+    filter: alpha(opacity=60);
+    opacity: 0.6;
+}
+
+.button {
+  outline: 0;
+  border: 0;
+  background: transparent;
+  box-sizing: border-box;
+  width: 0;
+  height: 18px;
+  border-color: transparent transparent transparent hsl(178, 100%, 5%);
+  transition: 80ms all ease;
+  cursor: pointer;
+  border-style: solid;
+  border-width: 9px 0 9px 21px;
+}
+.button.active {
+  border-color: transparent transparent transparent hsl(178, 100%, 8%); }
+  
+.button.paused {
+  border-style: double;
+  border-width: 0px 0 0px 21px;
+}
+.button:hover {
+  border-color: transparent transparent transparent hsl(178, 100%, 14%);
+}

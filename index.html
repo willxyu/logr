@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html><meta charset="utf-8">
+<head><title>logr</title>
+<link rel='icon' type='image/png' href='./assets/icon.png' />
+<link rel='stylesheet' href='main.css' />
+<link rel='stylesheet' href='colors.css' />
+<link rel='stylesheet' href='./extlib/scrubber.css' />
+<script src='./extlib/jquery-3.1.1.js'></script>
+<script src='./extlib/fastdom.js'></script>
+<script src='./extlib/scrubber.js'></script>
+<script src='sample.js'></script>
+</head>
+<body>
+ <div id="main"></div>
+ <div id="panel">
+  <button id="playback"  class='button'></button>
+  <div    id="pclock" class=""></div>
+ </div>
+ <div class="noise"></div>
+</body>
+<script>
+// options
+opt_autoPlayback = true
+// variables
+var_Duration     = 1
+var_playbacktime = 0
+var_interval     = 4     // ms
+var_playbackloop = null  // !important
+var_playing      = false
+
+// helper functions
+log    = console.log
+clean  = function(n) { var x = Number(n.replace(/[^-\d\.]/g, '')); return x }
+rpad   = function(s,l,c) { if (typeof s =='number') { s = s.toString() }; if (c == null) { c = ' ' }; return s + c.repeat(Math.max((l - s.length),0)); }
+lpad   = function(s,l,c) { if (typeof s =='number') { s = s.toString() }; if (c == null) { c = ' ' }; return c.repeat(Math.max(0,(l - s.length))) + s; }
+uuid   = function() { s4 = function() { return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1); }; return s4() + s4() + '-' + s4() + '-' + s4() + '-' +s4() + '-' + s4() + s4() + s4(); }
+
+hash = [] // array[index] so we know sequence
+fheight = 0
+
+tpt = 0     // total play time
+cpt = 0     // current play time
+ply = false  // playing true/false
+lhg = 0     // line height
+
+anc = null  // time anchor
+fin = null  // time bookend
+dir = null  // duration
+ppt = 0     // hash pointer
+run = 0
+tmr = null  // timer
+
+interval = 29
+factor = 12
+suspended = false
+scrolltimeout = null
+
+main  = $('#main')
+clock = $('#pclock')
+
+hashing = function() {
+ for (var i=0; i<hash.length; i++) {
+   var a = hash[i]
+   var b = $('.' + a.hash)
+   var c = b.position()
+   var d = b.height()
+   var e = c.top// + d
+   b.attr('custom', e) 
+   a.ming = e
+ }
+}
+
+preload = function() {
+ anc = null; fin = null; dur = null
+ var s = ''
+ for (var k=0; k<data.length; k++) {
+  var packet = data[k]
+  var ptime = null
+  for (var j=0; j<packet.length; j++) {
+   var actual = packet[j].printed
+   var time   = packet[j].state.time
+   var id = uuid()
+   if (  anc == null) { anc   = time }
+   if (ptime == null) { ptime = time }
+   if (j == (packet.length - 1)) { fin = ptime; duration = ptime }
+   hash.push({hash: id, ptime: (ptime - anc)})
+   s += '<div id="' + id + '" class="' + id + ' line" ptime="'+ (ptime - anc) +'">' + actual + '</div>'
+  }
+ }
+ dur = fin - anc
+ $('#main').append(s)
+}
+
+timing = function(milliseconds) {
+ var msecs = milliseconds
+ var  secs = Math.floor(msecs / 1000) 
+     msecs = msecs % 1000
+ var  mins = Math.floor( secs / 60)
+      secs = secs  % 60
+ var hours = Math.floor( mins / 60 )
+      mins = mins  % 60
+ var t = {}
+     t.hours = hours
+     t.mins  = mins
+     t.secs  = secs
+     t.msecs = msecs
+     t.parsed = lpad(mins,2,'0') + ':' + lpad(secs,2,'0')
+ return t
+}
+
+lineheight = function() {
+ var d  = ''
+     d += '<div id="dummy" style="font-family:\'Overpass\';'
+     d += ' font-size: 9pt; line-height: 10pt; position: absolute; top: 0px; left: 0px"'
+     d += '>M</div>'
+ $('body').append(d)
+ lhg = $('#dummy').height()
+ $('#dummy').remove()
+ return lhg
+}
+
+dummies = function() {
+ lhg = lineheight()
+ var fromTop = $(window).height() - $('#panel').height()
+ var blanks = Math.ceil( fromTop / lhg )
+     blanks = blanks - 1
+ var s = ''
+ for (var i=0; i < blanks; i++) { s += '<br>'; }
+ $('#main').append(s)
+}
+
+dummies()
+preload()
+
+$(window).on('load', function() {
+ hashing()
+
+ scrubber = new ScrubberView()
+ var a = document.getElementById('panel')
+     a.appendChild(scrubber.elt);
+     $('.scrubber').attr('id','scrubber')
+ updateScrubber = function(n) { scrubber.value(n) }
+ 
+
+ // looping timer
+ play = function() {
+  if (ply) {
+    tmr = setTimeout( play, interval )
+    if (!suspended) { recalc() }
+  }
+ }
+ 
+ recalc = function() {
+  run += interval
+  var z  = run * factor
+  var rp = timing(z)
+      if (rp.hours > 0) {
+      rp = lpad(rp.hours,2,'0') + ':' + lpad(rp.mins,2,'0') + ':' + lpad(rp.secs,2,'0')
+      } else {
+      rp = lpad(rp.mins,2,'0') + ':' + lpad(rp.secs,2,'0')
+      }
+  var dp = timing(dur)
+      if (dp.hours > 0) {
+      dp = lpad(dp.hours,2,'0') + ':' + lpad(dp.mins,2,'0') + ':' + lpad(dp.secs,2,'0')
+      } else {
+      dp = lpad(dp.mins,2,'0') + ':' + lpad(dp.secs,2,'0')
+      }
+  clock.text( rp + '/' + dp )
+  updateScrubber( run / dur * factor )
+  if ((run * factor) >= dur) { ply = false }
+  var p = hash[ppt] || {}
+  var hashtime = p.ptime
+  var togo = 0
+  for (var i=(hash.length - 1); i>-1; i--) {
+    var a = hash[i].ptime 
+        a = a / factor
+    if (a <= run) {
+      togo = hash[i].ptime
+      jumpto(i)
+      break
+    }
+  }
+ }
+
+ jumpto = function(index) {
+  var n = hash[index]
+  var i = n.ming
+  var v = i - clean(main.css('height')) + 8
+  main.scrollTop(v)
+ }
+ log(hash)
+ log(dur)
+ ply = true  // playing true/false
+ play()
+ // basic()
+ 
+ $('#main').scroll( function() {
+ })
+ $(window).bind('mousewheel DOMMouseScroll', function(event) {
+   suspended = true
+   log(event.originalEvent)
+   clearTimeout( scrolltimeout )
+   scrolltimeout = setTimeout( function() {
+     log(event)
+   }, interval)
+ })
+ 
+
+ // STYLE THINGS
+ // style scrubber
+ scrubber.elt.style.width = clean($('#main').css('width')) + 'px'
+ $('#scrubber')
+   .css('position','absolute')
+   .css('left','50%')
+   .css('top','50%')
+   .css('transform','translate(-50%,-75%)')
+ $('#scrubber .track')
+   .css('background','rgba( 150, 150, 150, 0.4)')
+   .css('border-radius','3px')
+ 
+ // playback clock, position
+ var left = $('#scrubber').css('left')
+     left = clean(left)
+ var w    = $('#scrubber').css('width')
+     w    = clean(w)
+ $('#pclock')
+   .css('position','absolute')
+   .css('left', (left + w/2 + 15) + 'px')
+   .css('top','50%')
+   .css('transform','translate(0%,-50%)')
+
+ // playback button, position
+ var left = $('#scrubber').css('left')
+     left = clean(left)
+ var w    = $('#scrubber').css('width')
+     w    = clean(w)
+ var o    = left - (w / 2)
+     w    = $('#playback').css('width')
+     w    = clean(w)
+     o   -= (w * 1.4)
+ $('#playback')
+   .css('position','absolute')
+   .css('left',o + 'px')
+   .css('top','50%')
+   .css('transform','translate(0%,-50%)')
+})
+
+/*
+basic = function() {
+ $('#main').empty()
+ var f = function(what) {
+   $('#main').append(what)
+   fastdom.measure( function() {
+    var h = document.getElementById('main').scrollHeight
+    fastdom.mutate( function() { $('#main').scrollTop(h) })
+   })
+ }
+ var anchor = null
+ for (var k=0; k<data.length; k++) {
+   var packet = data[k]
+   var ptime = null
+   for (var j=0; j<packet.length; j++) {
+    var s = packet[j].printed
+    if (anchor == null) { anchor = packet[j].state.time }
+    if (ptime == null) { ptime = packet[j].state.time }
+    var when = ptime - anchor
+    setTimeout( f, when, s )
+   }
+ }
+}
+*/
+
+//https://github.com/desmosinc/scrubber
+//https://codepen.io/zerostyle/pen/a88012ed280b71dd28a2a5683ec5d97f
+//https://css-tricks.com/making-pure-css-playpause-button/
+// <div>Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+</script>
+</html>
